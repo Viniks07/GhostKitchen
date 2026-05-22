@@ -1,3 +1,11 @@
-node_modules
-dist
+ROADMAP.md
+
+node_modules/
+dist/
 .env
+
+backend/src/generated/prisma/
+
+.DS_Store
+coverage/
+*.log
