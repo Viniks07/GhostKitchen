@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
     "target": "ES2022",
 
     "module": "NodeNext",
@@ -17,10 +19,9 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
 
-    "skipLibCheck": true,
-    "noEmit": true
+    "skipLibCheck": true
   },
 
-  "include": ["src", "prisma.config.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "prisma.config.ts"]
 }
