@@ -57,7 +57,7 @@ model Restaurant {
 
 model Address {
   id Int @id @default(autoincrement())
-  userId Int
+  userId Int @unique
   street String
   number String
   city String
