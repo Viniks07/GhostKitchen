@@ -93,6 +93,10 @@ export class AuthService {
       throw new AppError("Senha é obrigatória", 400);
     }
 
+    if (data.password.length < 8 || data.password.length > 72) {
+      throw new AppError("Senha inválida", 400);
+    }
+
     const user = await authRepository.findUserByEmail(email);
 
     if (!user) {
@@ -138,5 +142,36 @@ export class AuthService {
     const publicUser = this.toPublicUser(user);
 
     return { user: publicUser, accessToken, tokenMaxAge: expiresIn };
+  }
+
+  async getMe(userId: number) {
+    const user = await authRepository.findUserById(userId);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404);
+    }
+
+    const publicUser = this.toPublicUser(user);
+
+    return publicUser;
+  }
+
+  async logout(accessToken: string) {
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(accessToken)
+      .digest("hex");
+
+    const session = await authRepository.findSessionByTokenHash(tokenHash);
+
+    if (!session) {
+      throw new AppError("Sessão inválida", 401);
+    }
+
+    if (session.revokedAt) {
+      throw new AppError("Sessão já revogada", 401);
+    }
+
+    await authRepository.revokeSessionByTokenHash(tokenHash);
   }
 }
