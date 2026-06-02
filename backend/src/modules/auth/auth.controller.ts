@@ -1,6 +1,6 @@
 import { AuthService } from "./auth.service.js";
-import type { Request, Response } from "express";
 import { AppError } from "../../shared/errors/AppError.js";
+import type { Request, Response } from "express";
 
 const authService = new AuthService();
 

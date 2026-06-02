@@ -1,7 +1,35 @@
-import {Router} from 'express';
+import { Router } from "express";
+import { RestaurantsController } from "./restaurants.controller.js";
+import { authMiddleware } from "../../shared/middlewares/authMiddleware.js";
+import { roleMiddleware } from "../../shared/middlewares/roleMiddleware.js";
 
 export const restaurantsRouter = Router();
 
-restaurantsRouter.get("/health", (req, res) => {
-    return res.json({module:"restaurants", status: "ok"});
-})
+const restaurantsController = new RestaurantsController();
+
+restaurantsRouter.post(
+  "/",
+  authMiddleware,
+  roleMiddleware(["RESTAURANT"]),
+  (req, res) => {
+    return restaurantsController.create(req, res);
+  },
+);
+
+restaurantsRouter.get(
+  "/me",
+  authMiddleware,
+  roleMiddleware(["RESTAURANT"]),
+  (req, res) => {
+    return restaurantsController.getMyRestaurant(req, res);
+  },
+);
+
+restaurantsRouter.patch(
+  "/me",
+  authMiddleware,
+  roleMiddleware(["RESTAURANT"]),
+  (req, res) => {
+    return restaurantsController.updateMyRestaurant(req, res);
+  },
+);

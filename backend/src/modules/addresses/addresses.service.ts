@@ -109,7 +109,7 @@ export class AddressesService {
       updatedData.state = state;
     }
 
-    if (data.zipCode !== undefined) {
+    if (data.zipCode !== undefined) { 
       const zipCode = data.zipCode.trim();
 
       if (!zipCode) {

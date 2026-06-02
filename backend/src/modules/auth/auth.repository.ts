@@ -15,9 +15,9 @@ export type CreateSessionData = {
 };
 
 export class AuthRepository {
-  async createUser(data: CreateUserData) {
+  async createUser(userData: CreateUserData) {
     return prisma.user.create({
-      data,
+      data:userData
     });
   }
 
