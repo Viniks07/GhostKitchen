@@ -16,6 +16,10 @@ export class RestaurantsService {
       throw new AppError("Usuário já possui um restaurante cadastrado", 409);
     }
 
+    if (typeof data.name !== "string") {
+      throw new AppError("Nome do restaurante com formato inválido", 400);
+    }
+
     if (!data.name || !data.name.trim()) {
       throw new AppError("Nome é obrigatório", 400);
     }
@@ -32,6 +36,13 @@ export class RestaurantsService {
     let description: string | undefined;
 
     if (data.description !== undefined) {
+      if (typeof data.description !== "string") {
+        throw new AppError(
+          "Descrição do restaurante com formato inválido",
+          400,
+        );
+      }
+
       description = data.description.trim();
 
       if (description.length > 500) {
@@ -79,6 +90,10 @@ export class RestaurantsService {
     const updatedData: UpdateRestaurantDTO = {};
 
     if (data.name !== undefined) {
+      if (typeof data.name !== "string") {
+        throw new AppError("Nome do restaurante com formato inválido", 400);
+      }
+
       const name = data.name.trim();
 
       if (!name) {
@@ -96,21 +111,31 @@ export class RestaurantsService {
     }
 
     if (data.description !== undefined) {
-      const description = data.description.trim();
+      if (data.description === null) {
+        updatedData.description = null;
+      } else {
+        if (typeof data.description !== "string") {
+          throw new AppError(
+            "Descrição do restaurante com formato inválido",
+            400,
+          );
+        }
+        const description = data.description.trim();
 
-      if (description.length > 500) {
-        throw new AppError(
-          "Descrição deve conter no máximo 500 caracteres",
-          400,
-        );
+        if (description.length > 500) {
+          throw new AppError(
+            "Descrição deve conter no máximo 500 caracteres",
+            400,
+          );
+        }
+
+        updatedData.description = description || null;
       }
-
-      updatedData.description = description || undefined;
     }
 
     if (data.isOpen !== undefined) {
       if (typeof data.isOpen !== "boolean") {
-        throw new AppError("Status do restaurante inválido", 400);
+        throw new AppError("Status do restaurante com formato inválido", 400);
       }
       updatedData.isOpen = data.isOpen;
     }

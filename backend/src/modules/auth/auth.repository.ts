@@ -17,7 +17,28 @@ export type CreateSessionData = {
 export class AuthRepository {
   async createUser(userData: CreateUserData) {
     return prisma.user.create({
-      data:userData
+      data: userData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+
+  async findUserByEmailWithPasswordHash(email: string) {
+    return prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        passwordHash: true,
+      },
     });
   }
 
@@ -26,13 +47,22 @@ export class AuthRepository {
       where: {
         email,
       },
+      select: {
+        id: true,
+      },
     });
   }
 
-  async findUserById(id: number) {
+  async findPublicUserById(id: number) {
     return prisma.user.findUnique({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
       },
     });
   }

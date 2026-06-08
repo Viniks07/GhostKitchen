@@ -6,6 +6,7 @@ import { AppError } from "../../shared/errors/AppError.js";
 import type { RegisterDTO, LoginDTO } from "./auth.dto.js";
 import type { CreateUserData } from "./auth.repository.js";
 import type { UserRole } from "@prisma/client";
+import { env } from "../../shared/config/env.js";
 
 const authRepository = new AuthRepository();
 
@@ -22,10 +23,17 @@ export class AuthService {
   }
 
   async register(data: RegisterDTO) {
+    if (typeof data.name !== "string") {
+      throw new AppError("Nome com formato inválido", 400);
+    }
     if (!data.name || !data.name.trim()) {
       throw new AppError("Nome é obrigatório", 400);
     }
     const name: string = data.name.trim();
+
+    if (typeof data.email !== "string") {
+      throw new AppError("Email com formato inválido", 400);
+    }
 
     if (!data.email || !data.email.trim()) {
       throw new AppError("Email é obrigatório", 400);
@@ -34,6 +42,10 @@ export class AuthService {
 
     if (!emailRegex.test(email)) {
       throw new AppError("Email inválido", 400);
+    }
+
+    if (typeof data.password !== "string") {
+      throw new AppError("Senha com formato inválido", 400);
     }
 
     if (!data.password) {
@@ -76,6 +88,10 @@ export class AuthService {
   }
 
   async login(data: LoginDTO) {
+    if (typeof data.email !== "string") {
+      throw new AppError("Email com formato inválido", 400);
+    }
+
     if (!data.email || !data.email.trim()) {
       throw new AppError("Email é obrigatório", 400);
     }
@@ -89,15 +105,19 @@ export class AuthService {
       throw new AppError("Email deve ter no máximo 255 caracteres", 400);
     }
 
+    if (typeof data.password !== "string") {
+      throw new AppError("Senha com formato inválido", 400);
+    }
+
     if (!data.password) {
       throw new AppError("Senha é obrigatória", 400);
     }
 
     if (data.password.length < 8 || data.password.length > 72) {
-      throw new AppError("Senha inválida", 400);
+      throw new AppError("Email ou senha inválidos", 401);
     }
 
-    const user = await authRepository.findUserByEmail(email);
+    const user = await authRepository.findUserByEmailWithPasswordHash(email);
 
     if (!user) {
       throw new AppError("Email ou senha inválidos", 401);
@@ -112,21 +132,13 @@ export class AuthService {
       throw new AppError("Email ou senha inválidos", 401);
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      throw new AppError("JWT_SECRET não configurado", 500);
-    }
-
-    const expiresIn = Number(process.env.SESSION_EXPIRES_IN);
-
-    if (isNaN(expiresIn) || expiresIn <= 0) {
-      throw new AppError("SESSION_EXPIRES_IN inválido", 500);
-    }
-
-    const accessToken = jwt.sign({ id: user.id, role: user.role }, jwtSecret, {
-      expiresIn: Math.floor(expiresIn / 1000),
-    });
+    const accessToken = jwt.sign(
+      { id: user.id, role: user.role },
+      env.JWT_SECRET,
+      {
+        expiresIn: Math.floor(env.SESSION_EXPIRES_IN / 1000),
+      },
+    );
 
     const tokenHash = crypto
       .createHash("sha256")
@@ -136,16 +148,20 @@ export class AuthService {
     await authRepository.createSession({
       userId: user.id,
       tokenHash,
-      expiresAt: new Date(Date.now() + expiresIn),
+      expiresAt: new Date(Date.now() + env.SESSION_EXPIRES_IN),
     });
 
     const publicUser = this.toPublicUser(user);
 
-    return { user: publicUser, accessToken, tokenMaxAge: expiresIn };
+    return {
+      user: publicUser,
+      accessToken,
+      tokenMaxAge: env.SESSION_EXPIRES_IN,
+    };
   }
 
   async getMe(userId: number) {
-    const user = await authRepository.findUserById(userId);
+    const user = await authRepository.findPublicUserById(userId);
 
     if (!user) {
       throw new AppError("Usuário não encontrado", 404);

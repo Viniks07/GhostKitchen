@@ -4,6 +4,7 @@ import { AppError } from "../errors/AppError.js";
 import { AuthRepository } from "../../modules/auth/auth.repository.js";
 import type { NextFunction, Request, Response } from "express";
 import type { UserRole } from "@prisma/client";
+import { env } from "../config/env.js";
 
 const authRepository = new AuthRepository();
 
@@ -23,16 +24,10 @@ export async function authMiddleware(
     throw new AppError("Não autenticado", 401);
   }
 
-  const jwtSecret = process.env.JWT_SECRET;
-
-  if (!jwtSecret) {
-    throw new AppError("JWT_SECRET não configurado", 500);
-  }
-
   let payload: JwtPayload;
 
   try {
-    payload = jwt.verify(accessToken, jwtSecret) as JwtPayload;
+    payload = jwt.verify(accessToken, env.JWT_SECRET) as JwtPayload;
   } catch {
     throw new AppError("Não autenticado", 401);
   }

@@ -5,6 +5,6 @@ export interface CreateRestaurantDTO {
 
 export interface UpdateRestaurantDTO {
     name?:string;
-    description?:string | undefined;
+    description?:string | null;
     isOpen?:boolean;
 }

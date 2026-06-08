@@ -1,6 +1,7 @@
 import { AuthService } from "./auth.service.js";
 import { AppError } from "../../shared/errors/AppError.js";
 import type { Request, Response } from "express";
+import { env } from "../../shared/config/env.js";
 
 const authService = new AuthService();
 
@@ -17,7 +18,7 @@ export class AuthController {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: tokenMaxAge,
     });
@@ -46,7 +47,7 @@ export class AuthController {
 
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: env.NODE_ENV === "production",
       sameSite: "strict",
     });
     return res.status(204).send();
