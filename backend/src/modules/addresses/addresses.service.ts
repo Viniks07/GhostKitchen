@@ -110,7 +110,7 @@ export class AddressesService {
       if (typeof data.number !== "string") {
         throw new AppError("Número com formato inválido", 400);
       }
-      const number = data.number.trim();
+      const number = data.number  .trim();
 
       if (!number) {
         throw new AppError("Número inválido", 400);
