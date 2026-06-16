@@ -39,30 +39,21 @@ export class ProductsService {
         description = undefined;
       }
     }
-
-    if (data.price === undefined) {
+    console.log(data)
+    if (data.priceInCents === undefined) {
       throw new AppError("Preço é obrigatório", 400);
     }
 
-    if (typeof data.price !== "number") {
+    if (typeof data.priceInCents !== "number") {
       throw new AppError("Preço com formato inválido", 400);
     }
 
-    const price = data.price;
-
-    if (!Number.isFinite(price)) {
-      throw new AppError("Valor do preço inválido", 400);
+    if (!Number.isInteger(data.priceInCents)) {
+      throw new AppError("Preço deve ser um número inteiro em centavos", 400);
     }
 
-    if (price <= 0) {
+    if (data.priceInCents <= 0) {
       throw new AppError("Preço deve ser maior que zero", 400);
-    }
-
-    const priceInCents = price * 100;
-    const roundedPriceInCents = Math.round(priceInCents);
-
-    if (Math.abs(priceInCents - roundedPriceInCents) > 1e-9) {
-      throw new AppError("Preço deve ter no máximo 2 casas decimais", 400);
     }
 
     if (data.isAvailable !== undefined) {
@@ -73,12 +64,12 @@ export class ProductsService {
         );
       }
     }
-
+    const priceInCents = data.priceInCents;
     const isAvailable = data.isAvailable;
 
     const productData: CreateProductDTO = {
       name,
-      price,
+      priceInCents,
     };
 
     if (description !== undefined) {
@@ -164,29 +155,20 @@ export class ProductsService {
       }
     }
 
-    if (data.price !== undefined) {
-      if (typeof data.price !== "number") {
+    if (data.priceInCents !== undefined) {
+      if (typeof data.priceInCents !== "number") {
         throw new AppError("Preço com formato inválido", 400);
       }
 
-      const price = data.price;
-
-      if (!Number.isFinite(price)) {
-        throw new AppError("Valor do preço inválido", 400);
+      if (!Number.isInteger(data.priceInCents)) {
+        throw new AppError("Preço deve ser um número inteiro em centavos", 400);
       }
 
-      if (price <= 0) {
+      if (data.priceInCents <= 0) {
         throw new AppError("Preço deve ser maior que zero", 400);
       }
 
-      const priceInCents = price * 100;
-      const roundedPriceInCents = Math.round(priceInCents);
-
-      if (Math.abs(priceInCents - roundedPriceInCents) > 1e-9) {
-        throw new AppError("Preço deve ter no máximo 2 casas decimais", 400);
-      }
-
-      updatedData.price = price;
+      updatedData.priceInCents = data.priceInCents;
     }
 
     if (data.isAvailable !== undefined) {

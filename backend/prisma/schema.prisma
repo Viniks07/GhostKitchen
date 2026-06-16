@@ -85,7 +85,7 @@ model Product {
   restaurantId Int
   name String
   description String?
-  price Decimal @db.Decimal(10, 2)
+  priceInCents Int
   isAvailable Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,7 +100,7 @@ model Order {
   clientId Int
   restaurantId Int
   status OrderStatus @default(CREATED)
-  total Decimal @db.Decimal(10, 2)
+  totalInCents Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -115,7 +115,7 @@ model OrderItem {
   orderId Int
   productId Int
   quantity Int 
-  price Decimal @db.Decimal(10, 2)
+  priceInCents Int
 
   @@unique([orderId, productId])
 
