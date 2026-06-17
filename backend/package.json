@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" && prisma format",
-    "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+    "seed": "tsx src/shared/database/seed.ts"
   },
   "keywords": [],
   "author": "Vinicius S. Fonseca",
