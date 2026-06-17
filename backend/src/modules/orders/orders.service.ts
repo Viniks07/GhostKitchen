@@ -2,6 +2,10 @@ import { AppError } from "../../shared/errors/AppError.js";
 import { OrdersRepository } from "./orders.repository.js";
 import type { CreateOrderDTO, UpdateOrderStatusDTO } from "./orders.dto.js";
 import { OrderStatus } from "@prisma/client";
+import {
+  MAX_ORDER_ITEM_QUANTITY,
+  MAX_ORDER_TOTAL_IN_CENTS,
+} from "../../shared/constants/business-rules.js";
 
 const allowedStatusTransitions: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.CREATED]: [OrderStatus.ACCEPTED, OrderStatus.CANCELED],
@@ -47,6 +51,9 @@ export class OrdersService {
 
       if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
         throw new AppError("Quantidade inválida", 400);
+      }
+      if (item.quantity > MAX_ORDER_ITEM_QUANTITY) {
+        throw new AppError("Quantidade excede o limite permitido", 400);
       }
     }
 
@@ -102,6 +109,13 @@ export class OrdersService {
     const totalInCents = orderItems.reduce((total, item) => {
       return total + item.priceInCents * item.quantity;
     }, 0);
+
+    if (totalInCents > MAX_ORDER_TOTAL_IN_CENTS) {
+      throw new AppError(
+        "Valor total do pedido excede o limite permitido",
+        400,
+      );
+    }
 
     const order = await ordersRepository.createOrderWithItems(
       userId,

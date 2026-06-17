@@ -2,7 +2,10 @@ import { Router } from "express";
 import { usersRouter } from "../modules/users/users.routes.js";
 import { restaurantsRouter } from "../modules/restaurants/restaurants.routes.js";
 import { productsRouter } from "../modules/products/products.routes.js";
-import { ordersRouter, restauranteOrdersRouter } from "../modules/orders/orders.routes.js";
+import {
+  ordersRouter,
+  restaurantOrdersRouter,
+} from "../modules/orders/orders.routes.js";
 import { authRouter } from "../modules/auth/auth.routes.js";
 import { addressesRouter } from "../modules/addresses/addresses.routes.js";
 
@@ -12,8 +15,7 @@ routes.use("/auth", authRouter);
 
 routes.use("/users", usersRouter);
 
-
-routes.use("/restaurants/orders", restauranteOrdersRouter)
+routes.use("/restaurants/orders", restaurantOrdersRouter);
 routes.use("/restaurants/products", productsRouter);
 routes.use("/restaurants", restaurantsRouter);
 

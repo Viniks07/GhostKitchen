@@ -22,7 +22,9 @@ function getRequiredNumberEnv(name: string): number {
 }
 
 export const env = {
+  PORT: getRequiredNumberEnv("PORT"),
   DATABASE_URL: getRequiredEnv("DATABASE_URL"),
+  FRONTEND_URL: getRequiredEnv("FRONTEND_URL"),
   JWT_SECRET: getRequiredEnv("JWT_SECRET"),
   SESSION_EXPIRES_IN: getRequiredNumberEnv("SESSION_EXPIRES_IN"),
   NODE_ENV: getRequiredEnv("NODE_ENV"),

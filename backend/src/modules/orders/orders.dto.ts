@@ -6,8 +6,8 @@ export interface CreateOrderDTO {
     productId: number;
     quantity: number;
   }[];
-};
+}
 
 export interface UpdateOrderStatusDTO {
-  status: OrderStatus
+  status: OrderStatus;
 }

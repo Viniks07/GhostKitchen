@@ -1,5 +1,8 @@
 import { prisma } from "../../shared/database/prisma.js";
-import type { CreateRestaurantDTO, UpdateRestaurantDTO } from "./restaurants.dto.js";
+import type {
+  CreateRestaurantDTO,
+  UpdateRestaurantDTO,
+} from "./restaurants.dto.js";
 
 export class RestaurantsRepository {
   async createRestaurant(userId: number, restaurantData: CreateRestaurantDTO) {
@@ -14,12 +17,13 @@ export class RestaurantsRepository {
     });
   }
 
-  async updateRestaurantByUserId(userId: number, restaurantData: UpdateRestaurantDTO){
-    return prisma.restaurant.update(
-      {
-        where: { userId },
-        data: {...restaurantData}
-      }
-    )
+  async updateRestaurantByUserId(
+    userId: number,
+    restaurantData: UpdateRestaurantDTO,
+  ) {
+    return prisma.restaurant.update({
+      where: { userId },
+      data: { ...restaurantData },
+    });
   }
 }

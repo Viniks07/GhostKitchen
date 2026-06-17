@@ -6,5 +6,5 @@ export function notFoundMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-    next(new AppError("Rota não encontrada", 404));
+  next(new AppError("Rota não encontrada", 404));
 }

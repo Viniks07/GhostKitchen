@@ -1,0 +1,3 @@
+export const MAX_PRICE_IN_CENTS = 1_000_000;
+export const MAX_ORDER_ITEM_QUANTITY = 99;
+export const MAX_ORDER_TOTAL_IN_CENTS = 10_000_000;

@@ -6,7 +6,7 @@ export class ProductsRepository {
     return prisma.product.create({
       data: {
         restaurantId,
-        ...productData, 
+        ...productData,
       },
     });
   }

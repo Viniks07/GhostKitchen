@@ -4,7 +4,7 @@ import { roleMiddleware } from "../../shared/middlewares/roleMiddleware.js";
 import { OrdersController } from "./orders.controller.js";
 
 export const ordersRouter = Router();
-export const restauranteOrdersRouter = Router();
+export const restaurantOrdersRouter = Router();
 
 const ordersController = new OrdersController();
 
@@ -35,7 +35,7 @@ ordersRouter.get(
   },
 );
 
-restauranteOrdersRouter.get(
+restaurantOrdersRouter.get(
   "/",
   authMiddleware,
   roleMiddleware(["RESTAURANT"]),
@@ -44,20 +44,20 @@ restauranteOrdersRouter.get(
   },
 );
 
-restauranteOrdersRouter.get(
+restaurantOrdersRouter.get(
   "/:id",
   authMiddleware,
   roleMiddleware(["RESTAURANT"]),
   (req, res) => {
-    return ordersController.getMyRestaurantOrderById(req,res);
+    return ordersController.getMyRestaurantOrderById(req, res);
   },
 );
 
-restauranteOrdersRouter.patch(
+restaurantOrdersRouter.patch(
   "/:id/status",
   authMiddleware,
   roleMiddleware(["RESTAURANT"]),
-  (req,res) => {
-    return ordersController.updateMyRestaurantOrderStatus(req,res)
-  }
-)
+  (req, res) => {
+    return ordersController.updateMyRestaurantOrderStatus(req, res);
+  },
+);

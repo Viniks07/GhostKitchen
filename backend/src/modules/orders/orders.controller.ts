@@ -84,9 +84,9 @@ export class OrdersController {
     const order = await ordersService.updateMyRestaurantOrderStatus(
       req.user.id,
       orderId,
-      req.body
-    )
+      req.body,
+    );
 
-    return res.status(200).json({order})
+    return res.status(200).json({ order });
   }
 }

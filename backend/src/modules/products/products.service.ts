@@ -1,6 +1,7 @@
 import { AppError } from "../../shared/errors/AppError.js";
 import { ProductsRepository } from "./products.repository.js";
 import type { CreateProductDTO, UpdateProductDTO } from "./products.dto.js";
+import { MAX_PRICE_IN_CENTS } from "../../shared/constants/business-rules.js";
 
 const productsRepository = new ProductsRepository();
 
@@ -39,7 +40,6 @@ export class ProductsService {
         description = undefined;
       }
     }
-    console.log(data)
     if (data.priceInCents === undefined) {
       throw new AppError("Preço é obrigatório", 400);
     }
@@ -54,6 +54,10 @@ export class ProductsService {
 
     if (data.priceInCents <= 0) {
       throw new AppError("Preço deve ser maior que zero", 400);
+    }
+
+    if (data.priceInCents > MAX_PRICE_IN_CENTS) {
+      throw new AppError("Preço excede o valor máximo permitido", 400);
     }
 
     if (data.isAvailable !== undefined) {
@@ -109,10 +113,7 @@ export class ProductsService {
     }
 
     if (product.restaurantId !== restaurant.id) {
-      throw new AppError(
-        "Você não tem permissão para alterar este produto",
-        403,
-      );
+      throw new AppError("Produto não encontrado", 404);
     }
 
     const updatedData: UpdateProductDTO = {};
@@ -166,6 +167,10 @@ export class ProductsService {
 
       if (data.priceInCents <= 0) {
         throw new AppError("Preço deve ser maior que zero", 400);
+      }
+
+      if (data.priceInCents > MAX_PRICE_IN_CENTS) {
+        throw new AppError("Preço excede o valor máximo permitido", 400);
       }
 
       updatedData.priceInCents = data.priceInCents;
