@@ -14,7 +14,7 @@ function getRequiredNumberEnv(name: string): number {
   const value = getRequiredEnv(name);
   const numberValue = Number(value);
 
-  if (Number.isNaN(numberValue) || numberValue <= 0) {
+  if (!Number.isInteger(numberValue) || numberValue <= 0) {
     throw new Error(`${name} inválida`);
   }
 

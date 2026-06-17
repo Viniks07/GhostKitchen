@@ -26,4 +26,60 @@ export class RestaurantsRepository {
       data: { ...restaurantData },
     });
   }
+
+  async findPublicRestaurants() {
+    return prisma.restaurant.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        isOpen: true,
+      },
+      orderBy: [
+        {
+          isOpen: "desc",
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
+    });
+  }
+
+  async findPublicRestaurantById(id: number) {
+    return prisma.restaurant.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        isOpen: true,
+      },
+    });
+  }
+
+  async findPublicProductsByRestaurantId(restaurantId: number) {
+    return prisma.product.findMany({
+      where: {
+        restaurantId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        priceInCents: true,
+        isAvailable: true,
+      },
+      orderBy: [
+        {
+          isAvailable: "desc",
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
+    });
+  }
 }

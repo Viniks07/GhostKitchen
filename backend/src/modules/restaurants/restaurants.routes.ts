@@ -15,7 +15,6 @@ restaurantsRouter.post(
     return restaurantsController.create(req, res);
   },
 );
-
 restaurantsRouter.get(
   "/me",
   authMiddleware,
@@ -33,3 +32,15 @@ restaurantsRouter.patch(
     return restaurantsController.updateMyRestaurant(req, res);
   },
 );
+
+restaurantsRouter.get("/", (req, res) => {
+  return restaurantsController.getPublicRestaurants(req, res);
+});
+
+restaurantsRouter.get("/:id/products", (req, res) => {
+  return restaurantsController.getPublicRestaurantProducts(req, res);
+});
+
+restaurantsRouter.get("/:id", (req, res) => {
+  return restaurantsController.getPublicRestaurantById(req, res);
+});

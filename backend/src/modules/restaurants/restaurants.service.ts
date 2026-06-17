@@ -68,6 +68,39 @@ export class RestaurantsService {
     return restaurantsRepository.createRestaurant(userId, restaurantData);
   }
 
+  async getPublicRestaurants() {
+    const restaurants = await restaurantsRepository.findPublicRestaurants();
+
+    return restaurants;
+  }
+
+  async getPublicRestaurantById(restaurantId: number) {
+    const restaurant =
+      await restaurantsRepository.findPublicRestaurantById(restaurantId);
+
+    if (!restaurant) {
+      throw new AppError("Restaurante não encontrado", 404);
+    }
+
+    return restaurant;
+  }
+
+  async getPublicRestaurantProducts(restaurantId: number) {
+    const restaurant =
+      await restaurantsRepository.findPublicRestaurantById(restaurantId);
+
+    if (!restaurant) {
+      throw new AppError("Restaurante não encontrado", 404);
+    }
+
+    const products =
+      await restaurantsRepository.findPublicProductsByRestaurantId(
+        restaurantId,
+      );
+
+    return products;
+  }
+
   async getMyRestaurant(userId: number) {
     const restaurant =
       await restaurantsRepository.findRestaurantByUserId(userId);
