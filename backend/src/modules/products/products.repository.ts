@@ -44,4 +44,32 @@ export class ProductsRepository {
       },
     });
   }
+
+  async findFeaturedProducts(limit: number) {
+    return prisma.product.findMany({
+      where: {
+        isAvailable: true,
+        restaurant: {
+          isOpen: true,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        priceInCents: true,
+        isAvailable: true,
+        restaurant: {
+          select: {
+            id: true,
+            name: true,
+            isOpen: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+    });
+  }
 }

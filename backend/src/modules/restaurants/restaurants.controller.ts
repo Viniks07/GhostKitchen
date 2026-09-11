@@ -14,7 +14,7 @@ export class RestaurantsController {
     return res.status(201).json({ restaurant });
   }
 
-  async getPublicRestaurants(req: Request, res: Response) {
+  async getPublicRestaurants(_req: Request, res: Response) {
     const restaurants = await restaurantsService.getPublicRestaurants();
     return res.status(200).json({ restaurants });
   }

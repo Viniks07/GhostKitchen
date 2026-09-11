@@ -1,7 +1,10 @@
 import { AppError } from "../../shared/errors/AppError.js";
 import { ProductsRepository } from "./products.repository.js";
 import type { CreateProductDTO, UpdateProductDTO } from "./products.dto.js";
-import { MAX_PRICE_IN_CENTS } from "../../shared/constants/business-rules.js";
+import {
+  MAX_PRICE_IN_CENTS,
+  FEATURED_PRODUCTS_LIMIT,
+} from "../../shared/constants/business-rules.js";
 
 const productsRepository = new ProductsRepository();
 
@@ -204,6 +207,14 @@ export class ProductsService {
 
     const products = await productsRepository.findProductsByRestaurantId(
       restaurant.id,
+    );
+
+    return products;
+  }
+
+  async getFeaturedProducts() {
+    const products = await productsRepository.findFeaturedProducts(
+      FEATURED_PRODUCTS_LIMIT,
     );
 
     return products;

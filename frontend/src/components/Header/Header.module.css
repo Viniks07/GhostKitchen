@@ -1,0 +1,41 @@
+.header{
+  height: 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.profileImageContainer{
+  width: 50%;
+  background-color: white;
+  border-radius: 999px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1.5px 1px rgba(0,0,0,.1);
+}
+
+.profileImage{
+  padding: 4px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.profileText{
+  font-size: .75rem;
+  opacity: 50%;
+}
+
+.clientName{
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.hamburgerMenuContainer{
+  width: 3rem ;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

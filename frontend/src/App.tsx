@@ -1,7 +1,16 @@
+import { Route, Routes } from "react-router-dom"
 
-function App() {
+import { HomePage } from "./pages/Home/HomePage"
+import { RestaurantPage } from "./pages/Restaurant/RestaurantPage"
+import { CartPage } from "./pages/Cart/CartPage"
 
-  return <h1>GhostKitchen</h1>
+export function App() {
+
+  return(
+    <Routes>
+      <Route path="/"  element={<HomePage/>}/>
+      <Route path="/restaurants/:id" element={<RestaurantPage/>}/>
+      <Route path="/cart" element={<CartPage/>} />
+    </Routes>
+  )
 }
-
-export default App

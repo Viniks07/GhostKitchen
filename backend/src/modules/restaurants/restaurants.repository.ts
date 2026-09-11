@@ -1,29 +1,59 @@
 import { prisma } from "../../shared/database/prisma.js";
+
 import type {
-  CreateRestaurantDTO,
-  UpdateRestaurantDTO,
+  CreateRestaurantData,
+  UpdateRestaurantData,
 } from "./restaurants.dto.js";
 
 export class RestaurantsRepository {
-  async createRestaurant(userId: number, restaurantData: CreateRestaurantDTO) {
+  async createRestaurant(userId: number, restaurantData: CreateRestaurantData) {
     return prisma.restaurant.create({
       data: { userId, ...restaurantData },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
     });
   }
 
   async findRestaurantByUserId(userId: number) {
     return prisma.restaurant.findUnique({
-      where: { userId },
+      where: {
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
     });
   }
 
   async updateRestaurantByUserId(
     userId: number,
-    restaurantData: UpdateRestaurantDTO,
+    restaurantData: UpdateRestaurantData,
   ) {
     return prisma.restaurant.update({
       where: { userId },
       data: { ...restaurantData },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
     });
   }
 
@@ -34,6 +64,13 @@ export class RestaurantsRepository {
         name: true,
         description: true,
         isOpen: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
       orderBy: [
         {
@@ -56,6 +93,13 @@ export class RestaurantsRepository {
         name: true,
         description: true,
         isOpen: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
   }
@@ -80,6 +124,19 @@ export class RestaurantsRepository {
           createdAt: "desc",
         },
       ],
+    });
+  }
+
+  async findCategoryBySlug(slug: string) {
+    return prisma.category.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
     });
   }
 }

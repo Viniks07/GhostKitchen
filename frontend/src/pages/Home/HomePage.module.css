@@ -1,0 +1,5 @@
+.pageBody {
+  background: linear-gradient(to bottom, #e77015 0%, #f6eee8 32%);
+  min-height: 100vh;
+  padding: 1rem;
+}

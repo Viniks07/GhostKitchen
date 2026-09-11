@@ -4,6 +4,7 @@ import { authMiddleware } from "../../shared/middlewares/authMiddleware.js";
 import { roleMiddleware } from "../../shared/middlewares/roleMiddleware.js";
 
 export const productsRouter = Router();
+export const publicProductsRouter = Router();
 
 const productsController = new ProductsController();
 
@@ -33,3 +34,7 @@ productsRouter.patch(
     return productsController.updateMyProduct(req, res);
   },
 );
+
+publicProductsRouter.get("/featured", (req, res) => {
+  return productsController.getFeaturedProducts(req, res);
+});

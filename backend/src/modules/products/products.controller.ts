@@ -43,4 +43,10 @@ export class ProductsController {
 
     return res.status(200).json({ product });
   }
+
+  async getFeaturedProducts(_req: Request, res: Response) {
+    const products = await productsService.getFeaturedProducts();
+
+    return res.status(200).json({ products });
+  }
 }

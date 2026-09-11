@@ -44,6 +44,7 @@ model Restaurant {
   id          Int      @id @default(autoincrement())
   userId      Int      @unique
   name        String
+  categoryId  Int
   description String?
   isOpen      Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -53,6 +54,16 @@ model Restaurant {
 
   orders   Order[]
   products Product[]
+  category Category  @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  slug        String       @unique
+  restaurants Restaurant[]
 }
 
 model Address {

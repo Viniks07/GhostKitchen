@@ -1,0 +1,88 @@
+.searchBar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.searchBarTitle {
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.searchBarInputContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.searchBarInput {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  border: none;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.searchBarInput:focus{
+    outline: none;
+}
+
+.searchBarInput::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.searchBarButton {
+  position: absolute;
+  width: 1.25rem;
+  right: 0.8rem;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.searchBarButtonIcon {
+  height: auto;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.searchBarButtonIconUnfocused {
+  width: 100%;
+  animation: toMagnifyingGlass 0.5s ease;
+}
+
+.searchBarButtonIconFocused {
+  width: 75%;
+  animation: toX 0.5s ease;
+}
+
+@keyframes toX {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes toMagnifyingGlass {
+  from {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}

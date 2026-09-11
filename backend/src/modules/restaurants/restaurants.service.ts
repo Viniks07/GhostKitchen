@@ -3,6 +3,8 @@ import { RestaurantsRepository } from "./restaurants.repository.js";
 import type {
   CreateRestaurantDTO,
   UpdateRestaurantDTO,
+  CreateRestaurantData,
+  UpdateRestaurantData,
 } from "./restaurants.dto.js";
 
 const restaurantsRepository = new RestaurantsRepository();
@@ -33,6 +35,23 @@ export class RestaurantsService {
       );
     }
 
+    if (typeof data.categorySlug !== "string") {
+      throw new AppError("Categoria com formato inválido", 400);
+    }
+
+    const categorySlug = data.categorySlug.trim().toLowerCase();
+
+    if (!categorySlug) {
+      throw new AppError("Categoria é obrigatória", 400);
+    }
+
+    const category =
+      await restaurantsRepository.findCategoryBySlug(categorySlug);
+
+    if (!category) {
+      throw new AppError("Categoria inválida", 400);
+    }
+
     let description: string | undefined;
 
     if (data.description !== undefined) {
@@ -57,8 +76,9 @@ export class RestaurantsService {
       }
     }
 
-    const restaurantData: CreateRestaurantDTO = {
+    const restaurantData: CreateRestaurantData = {
       name,
+      categoryId: category.id,
     };
 
     if (description !== undefined) {
@@ -120,7 +140,7 @@ export class RestaurantsService {
       throw new AppError("Restaurante não encontrado", 404);
     }
 
-    const updatedData: UpdateRestaurantDTO = {};
+    const updatedData: UpdateRestaurantData = {};
 
     if (data.name !== undefined) {
       if (typeof data.name !== "string") {
@@ -141,6 +161,27 @@ export class RestaurantsService {
       }
 
       updatedData.name = name;
+    }
+
+    if (data.categorySlug !== undefined) {
+      if (typeof data.categorySlug !== "string") {
+        throw new AppError("Categoria com formato inválido", 400);
+      }
+
+      const categorySlug = data.categorySlug.trim().toLowerCase();
+
+      if (!categorySlug) {
+        throw new AppError("Categoria inválida", 400);
+      }
+
+      const category =
+        await restaurantsRepository.findCategoryBySlug(categorySlug);
+
+      if (!category) {
+        throw new AppError("Categoria inválida", 400);
+      }
+
+      updatedData.categoryId = category.id;
     }
 
     if (data.description !== undefined) {
