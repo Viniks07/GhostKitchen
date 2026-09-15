@@ -8,13 +8,10 @@ export function SearchBar() {
   const [inputFocused, setInputFocused] = useState(false);
 
   return (
-    <form className={styles.searchBar}>
-      <label htmlFor="searchBar" className={styles.searchBarTitle}>
-        Descubra sua próxima refeição
-      </label>
+    <form className={styles.searchBarContainer}>
+
       <div className={styles.searchBarInputContainer}>
         <input
-          id="searchBar"
           className={styles.searchBarInput}
           type="search"
           placeholder="O que vai pedir hoje?"

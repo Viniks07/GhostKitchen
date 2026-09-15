@@ -14,8 +14,10 @@ export class RestaurantsController {
     return res.status(201).json({ restaurant });
   }
 
-  async getPublicRestaurants(_req: Request, res: Response) {
-    const restaurants = await restaurantsService.getPublicRestaurants();
+  async getPublicRestaurants(req: Request, res: Response) {
+    const restaurants = await restaurantsService.getPublicRestaurants(
+      req.query.categorySlug,
+    );
     return res.status(200).json({ restaurants });
   }
 
@@ -41,6 +43,21 @@ export class RestaurantsController {
 
     const products =
       await restaurantsService.getPublicRestaurantProducts(restaurantId);
+
+    return res.status(200).json({ products });
+  }
+
+  async getMostOrderedProductsByRestaurantId(req: Request, res: Response) {
+    const restaurantId = Number(req.params.id);
+
+    if (!Number.isInteger(restaurantId) || restaurantId <= 0) {
+      throw new AppError("ID do restaurante inválido", 400);
+    }
+
+    const products =
+      await restaurantsService.getMostOrderedProductsByRestaurantId(
+        restaurantId,
+      );
 
     return res.status(200).json({ products });
   }

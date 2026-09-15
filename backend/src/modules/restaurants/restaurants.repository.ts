@@ -57,12 +57,21 @@ export class RestaurantsRepository {
     });
   }
 
-  async findPublicRestaurants() {
+  async findPublicRestaurants(categorySlug?: string) {
     return prisma.restaurant.findMany({
+      where: categorySlug
+        ? {
+            category: {
+              slug: categorySlug,
+            },
+          }
+        : {},
       select: {
         id: true,
         name: true,
+        slug: true,
         description: true,
+        imageUrl: true,
         isOpen: true,
         category: {
           select: {
@@ -91,7 +100,32 @@ export class RestaurantsRepository {
       select: {
         id: true,
         name: true,
+        slug: true,
         description: true,
+        imageUrl: true,
+        isOpen: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findPublicRestaurantBySlug(slug: string) {
+    return prisma.restaurant.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        imageUrl: true,
         isOpen: true,
         category: {
           select: {
@@ -112,7 +146,9 @@ export class RestaurantsRepository {
       select: {
         id: true,
         name: true,
+        slug: true,
         description: true,
+        imageUrl: true,
         priceInCents: true,
         isAvailable: true,
       },
@@ -136,6 +172,17 @@ export class RestaurantsRepository {
         id: true,
         name: true,
         slug: true,
+      },
+    });
+  }
+
+  async findRestaurantBySlug(slug: string) {
+    return prisma.restaurant.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        id: true,
       },
     });
   }

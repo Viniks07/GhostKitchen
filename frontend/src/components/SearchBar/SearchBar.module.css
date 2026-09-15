@@ -1,16 +1,11 @@
-.searchBar {
+.searchBarContainer {
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.searchBarTitle {
-  color: white;
-  font-size: 1.6rem;
-  font-weight: 500;
-  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
 }
+
+
 
 .searchBarInputContainer {
   width: 100%;

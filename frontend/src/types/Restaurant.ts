@@ -4,3 +4,8 @@ export type Restaurant = {
   description: string;
   isOpen: boolean;
 };
+
+
+export type GetRestaurantsResponse = {
+  restaurants: Restaurant[];
+};

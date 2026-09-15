@@ -1,5 +1,7 @@
 import { AppError } from "../../shared/errors/AppError.js";
 import { RestaurantsRepository } from "./restaurants.repository.js";
+import { ProductsService } from "../products/products.service.js";
+
 import type {
   CreateRestaurantDTO,
   UpdateRestaurantDTO,
@@ -7,9 +9,29 @@ import type {
   UpdateRestaurantData,
 } from "./restaurants.dto.js";
 
+import { generateUniqueSlug } from "../../shared/utils/generateUniqueSlug.js";
+import {
+  validateImageUrlForCreate,
+  validateImageUrlForUpdate,
+} from "../../shared/utils/validateImageUrl.js";
+
 const restaurantsRepository = new RestaurantsRepository();
+const productsService = new ProductsService();
 
 export class RestaurantsService {
+  private async generateUniqueRestaurantSlug(name: string) {
+    return generateUniqueSlug({
+      value: name,
+      errorMessage: "Não foi possível gerar o slug do restaurante",
+      exists: async (slug) => {
+        const restaurant =
+          await restaurantsRepository.findRestaurantBySlug(slug);
+
+        return Boolean(restaurant);
+      },
+    });
+  }
+
   async create(userId: number, data: CreateRestaurantDTO) {
     const existingRestaurant =
       await restaurantsRepository.findRestaurantByUserId(userId);
@@ -34,6 +56,8 @@ export class RestaurantsService {
         400,
       );
     }
+
+    const slug = await this.generateUniqueRestaurantSlug(name);
 
     if (typeof data.categorySlug !== "string") {
       throw new AppError("Categoria com formato inválido", 400);
@@ -76,8 +100,11 @@ export class RestaurantsService {
       }
     }
 
+    const imageUrl = validateImageUrlForCreate(data.imageUrl);
+
     const restaurantData: CreateRestaurantData = {
       name,
+      slug,
       categoryId: category.id,
     };
 
@@ -85,11 +112,41 @@ export class RestaurantsService {
       restaurantData.description = description;
     }
 
+    if (imageUrl !== undefined) {
+      restaurantData.imageUrl = imageUrl;
+    }
+
     return restaurantsRepository.createRestaurant(userId, restaurantData);
   }
 
-  async getPublicRestaurants() {
-    const restaurants = await restaurantsRepository.findPublicRestaurants();
+  async getPublicRestaurants(categorySlug?: unknown) {
+    if (categorySlug === undefined) {
+      const restaurants = await restaurantsRepository.findPublicRestaurants();
+
+      return restaurants;
+    }
+
+    if (typeof categorySlug !== "string") {
+      throw new AppError("Categoria com formato inválido", 400);
+    }
+
+    const normalizedCategorySlug = categorySlug.trim().toLowerCase();
+
+    if (!normalizedCategorySlug) {
+      throw new AppError("Categoria inválida", 400);
+    }
+
+    const category = await restaurantsRepository.findCategoryBySlug(
+      normalizedCategorySlug,
+    );
+
+    if (!category) {
+      throw new AppError("Categoria inválida", 400);
+    }
+
+    const restaurants = await restaurantsRepository.findPublicRestaurants(
+      normalizedCategorySlug,
+    );
 
     return restaurants;
   }
@@ -117,6 +174,20 @@ export class RestaurantsService {
       await restaurantsRepository.findPublicProductsByRestaurantId(
         restaurantId,
       );
+
+    return products;
+  }
+
+  async getMostOrderedProductsByRestaurantId(restaurantId: number) {
+    const restaurant =
+      await restaurantsRepository.findPublicRestaurantById(restaurantId);
+
+    if (!restaurant) {
+      throw new AppError("Restaurante não encontrado", 404);
+    }
+
+    const products =
+      await productsService.getMostOrderedProductsByRestaurantId(restaurantId);
 
     return products;
   }
@@ -212,6 +283,14 @@ export class RestaurantsService {
         throw new AppError("Status do restaurante com formato inválido", 400);
       }
       updatedData.isOpen = data.isOpen;
+    }
+
+    if (data.imageUrl !== undefined) {
+      const imageUrl = validateImageUrlForUpdate(data.imageUrl);
+
+      if (imageUrl !== undefined) {
+        updatedData.imageUrl = imageUrl;
+      }
     }
 
     if (Object.keys(updatedData).length === 0) {

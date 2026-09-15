@@ -1,11 +1,7 @@
 import { env } from "../config/env";
-import type { Restaurant } from "../types/Restaurant";
+import type { GetRestaurantsResponse } from "../types/Restaurant";
 
-type GetRestaurantsResponse = {
-  restaurants: Restaurant[];
-};
-
-export async function getRestaurants(): Promise<GetRestaurantsResponse> {
+export async function GetRestaurants(): Promise<GetRestaurantsResponse> {
   const response = await fetch(`${env.API_URL}/restaurants`);
 
   if (!response.ok) {

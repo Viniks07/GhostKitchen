@@ -1,8 +1,14 @@
 import bcrypt from "bcrypt";
+import { OrderStatus, UserRole } from "@prisma/client";
 
 import { prisma } from "./prisma.js";
+import { createSlug } from "../utils/createSlug.js";
 
 const PASSWORD = "12345678";
+
+const CLIENT_COUNT = 20;
+const ORDER_COUNT = 5000;
+const ORDER_PROGRESS_STEP = 10;
 
 type CategorySlug =
   | "lanches"
@@ -20,6 +26,18 @@ type SeedProduct = {
   name: string;
   description: string;
   priceInCents: number;
+};
+
+type SeedClient = {
+  id: number;
+};
+
+type SeedRestaurantWithProducts = {
+  id: number;
+  products: {
+    id: number;
+    priceInCents: number;
+  }[];
 };
 
 const categories: SeedCategory[] = [
@@ -371,7 +389,117 @@ const productsByCategory: Record<CategorySlug, SeedProduct[]> = {
   ],
 };
 
+function createImageUrl(label: string) {
+  return `https://placehold.co/1024x1024/png?text=${encodeURIComponent(label)}`;
+}
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pickOne<T>(items: T[]): T {
+  return items[randomInt(0, items.length - 1)]!;
+}
+
+function pickUniqueProducts<T>(items: T[], count: number): T[] {
+  const availableItems = [...items];
+  const selectedItems: T[] = [];
+
+  while (selectedItems.length < count && availableItems.length > 0) {
+    const index = randomInt(0, availableItems.length - 1);
+    const [selectedItem] = availableItems.splice(index, 1);
+
+    selectedItems.push(selectedItem!);
+  }
+
+  return selectedItems;
+}
+
+function getRandomOrderStatus(): OrderStatus {
+  const value = randomInt(1, 100);
+
+  if (value <= 88) {
+    return OrderStatus.DELIVERED;
+  }
+
+  if (value <= 92) {
+    return OrderStatus.CREATED;
+  }
+
+  if (value <= 95) {
+    return OrderStatus.PREPARING;
+  }
+
+  if (value <= 97) {
+    return OrderStatus.ACCEPTED;
+  }
+
+  if (value <= 99) {
+    return OrderStatus.ON_THE_WAY;
+  }
+
+  return OrderStatus.CANCELED;
+}
+
+function getRandomRating() {
+  const value = randomInt(1, 100);
+
+  if (value <= 55) return 5;
+  if (value <= 85) return 4;
+  if (value <= 95) return 3;
+  if (value <= 98) return 2;
+
+  return 1;
+}
+
+function getReviewComment(rating: number) {
+  if (rating === 5) {
+    return "Pedido excelente, chegou bem preparado e saboroso.";
+  }
+
+  if (rating === 4) {
+    return "Boa experiência, comida gostosa e entrega satisfatória.";
+  }
+
+  if (rating === 3) {
+    return "Pedido ok, mas poderia melhorar em alguns pontos.";
+  }
+
+  if (rating === 2) {
+    return "Experiência abaixo do esperado.";
+  }
+
+  return "Não gostei da experiência com o pedido.";
+}
+
+function formatDuration(milliseconds: number) {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+}
+
+function renderProgressBar(current: number, total: number, startedAt: number) {
+  const barSize = 30;
+  const progress = current / total;
+  const filledSize = Math.round(progress * barSize);
+  const emptySize = barSize - filledSize;
+
+  const filledBar = "#".repeat(filledSize);
+  const emptyBar = "-".repeat(emptySize);
+
+  const percentage = Math.round(progress * 100);
+  const elapsedTime = formatDuration(Date.now() - startedAt);
+  const currentText = String(current).padStart(String(total).length, " ");
+
+  process.stdout.write(
+    `\rPedidos [${filledBar}${emptyBar}] ${percentage}% | ${currentText}/${total} | ${elapsedTime}`,
+  );
+}
+
 async function clearDatabase() {
+  await prisma.restaurantReview.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.session.deleteMany();
@@ -391,6 +519,9 @@ async function seedCategories() {
         name: category.name,
         slug: category.slug,
       },
+      select: {
+        id: true,
+      },
     });
 
     categoryIdBySlug[category.slug] = createdCategory.id;
@@ -399,24 +530,39 @@ async function seedCategories() {
   return categoryIdBySlug;
 }
 
-async function seedClientUser(passwordHash: string) {
-  await prisma.user.create({
-    data: {
-      name: "Cliente Demo",
-      email: "cliente@ghostkitchen.com",
-      passwordHash,
-      role: "CLIENT",
-      addresses: {
-        create: {
-          street: "Rua das Flores",
-          number: "123",
-          city: "São Paulo",
-          state: "SP",
-          zipCode: "01000-000",
+async function seedClientUsers(passwordHash: string): Promise<SeedClient[]> {
+  const clients: SeedClient[] = [];
+
+  for (let index = 1; index <= CLIENT_COUNT; index += 1) {
+    const isMainClient = index === 1;
+
+    const client = await prisma.user.create({
+      data: {
+        name: isMainClient ? "Cliente Demo" : `Cliente Demo ${index}`,
+        email: isMainClient
+          ? "cliente@ghostkitchen.com"
+          : `cliente${index}@ghostkitchen.com`,
+        passwordHash,
+        role: UserRole.CLIENT,
+        addresses: {
+          create: {
+            street: "Rua das Flores",
+            number: String(100 + index),
+            city: "São Paulo",
+            state: "SP",
+            zipCode: "01000-000",
+          },
         },
       },
-    },
-  });
+      select: {
+        id: true,
+      },
+    });
+
+    clients.push(client);
+  }
+
+  return clients;
 }
 
 async function seedRestaurants(
@@ -438,7 +584,10 @@ async function seedRestaurants(
           name: `Dono ${restaurantName}`,
           email: `restaurante${restaurantCount}@ghostkitchen.com`,
           passwordHash,
-          role: "RESTAURANT",
+          role: UserRole.RESTAURANT,
+        },
+        select: {
+          id: true,
         },
       });
 
@@ -447,8 +596,13 @@ async function seedRestaurants(
           userId: user.id,
           categoryId: categoryIdBySlug[category.slug],
           name: restaurantName,
+          slug: createSlug(restaurantName),
           description: `${restaurantName} - restaurante da categoria ${category.name}.`,
+          imageUrl: createImageUrl(restaurantName),
           isOpen: restaurantCount % 4 !== 0,
+        },
+        select: {
+          id: true,
         },
       });
 
@@ -456,7 +610,9 @@ async function seedRestaurants(
         data: products.map((product, productIndex) => ({
           restaurantId: restaurant.id,
           name: product.name,
+          slug: createSlug(product.name),
           description: product.description,
+          imageUrl: createImageUrl(`${restaurantName} ${product.name}`),
           priceInCents: product.priceInCents,
           isAvailable: productIndex % 5 !== 0,
         })),
@@ -472,6 +628,136 @@ async function seedRestaurants(
   };
 }
 
+async function findRestaurantsWithProducts(): Promise<
+  SeedRestaurantWithProducts[]
+> {
+  const restaurants = await prisma.restaurant.findMany({
+    where: {
+      isOpen: true,
+    },
+    select: {
+      id: true,
+      products: {
+        where: {
+          isAvailable: true,
+        },
+        select: {
+          id: true,
+          priceInCents: true,
+        },
+      },
+    },
+  });
+
+  return restaurants.filter((restaurant) => restaurant.products.length > 0);
+}
+
+async function createSeedOrder(
+  client: SeedClient,
+  restaurant: SeedRestaurantWithProducts,
+) {
+  const itemsCount = randomInt(1, Math.min(4, restaurant.products.length));
+
+  const selectedProducts = pickUniqueProducts(restaurant.products, itemsCount);
+
+  const orderItems = selectedProducts.map((product) => {
+    const quantity = randomInt(1, 3);
+
+    return {
+      productId: product.id,
+      quantity,
+      priceInCents: product.priceInCents,
+    };
+  });
+
+  const totalInCents = orderItems.reduce((total, item) => {
+    return total + item.priceInCents * item.quantity;
+  }, 0);
+
+  const status = getRandomOrderStatus();
+
+  if (status !== OrderStatus.DELIVERED) {
+    await prisma.order.create({
+      data: {
+        clientId: client.id,
+        restaurantId: restaurant.id,
+        status,
+        totalInCents,
+        orderItems: {
+          create: orderItems,
+        },
+      },
+    });
+
+    return status;
+  }
+
+  const rating = getRandomRating();
+
+  await prisma.order.create({
+    data: {
+      clientId: client.id,
+      restaurantId: restaurant.id,
+      status,
+      totalInCents,
+      orderItems: {
+        create: orderItems,
+      },
+      review: {
+        create: {
+          clientId: client.id,
+          restaurantId: restaurant.id,
+          rating,
+          comment: getReviewComment(rating),
+        },
+      },
+    },
+  });
+
+  return status;
+}
+
+async function seedOrders(clients: SeedClient[]) {
+  const restaurants = await findRestaurantsWithProducts();
+
+  if (restaurants.length === 0) {
+    throw new Error("Nenhum restaurante aberto com produtos disponíveis.");
+  }
+
+  const statusCount: Record<OrderStatus, number> = {
+    [OrderStatus.CREATED]: 0,
+    [OrderStatus.ACCEPTED]: 0,
+    [OrderStatus.PREPARING]: 0,
+    [OrderStatus.ON_THE_WAY]: 0,
+    [OrderStatus.DELIVERED]: 0,
+    [OrderStatus.CANCELED]: 0,
+  };
+
+  const startedAt = Date.now();
+
+  renderProgressBar(0, ORDER_COUNT, startedAt);
+
+  for (let currentOrder = 1; currentOrder <= ORDER_COUNT; currentOrder += 1) {
+    const client = pickOne(clients);
+    const restaurant = pickOne(restaurants);
+
+    const status = await createSeedOrder(client, restaurant);
+
+    statusCount[status] += 1;
+
+    if (
+      currentOrder % ORDER_PROGRESS_STEP === 0 ||
+      currentOrder === ORDER_COUNT
+    ) {
+      renderProgressBar(currentOrder, ORDER_COUNT, startedAt);
+    }
+  }
+
+  process.stdout.write("\n");
+
+  return statusCount;
+}
+
 async function main() {
   console.log("Limpando banco...");
 
@@ -485,9 +771,9 @@ async function main() {
 
   const categoryIdBySlug = await seedCategories();
 
-  console.log("Criando usuário cliente...");
+  console.log("Criando usuários clientes...");
 
-  await seedClientUser(passwordHash);
+  const clients = await seedClientUsers(passwordHash);
 
   console.log("Criando restaurantes e produtos...");
 
@@ -496,12 +782,27 @@ async function main() {
     categoryIdBySlug,
   );
 
+  console.log("Criando pedidos, itens e avaliações...");
+
+  const statusCount = await seedOrders(clients);
+
   console.log("Seed finalizada com sucesso.");
   console.log(`Categorias criadas: ${categories.length}`);
+  console.log(`Clientes criados: ${clients.length}`);
   console.log(`Restaurantes criados: ${restaurantCount}`);
   console.log(`Produtos criados: ${productCount}`);
+  console.log(`Pedidos criados: ${ORDER_COUNT}`);
+  console.log(`Pedidos CREATED: ${statusCount.CREATED}`);
+  console.log(`Pedidos ACCEPTED: ${statusCount.ACCEPTED}`);
+  console.log(`Pedidos PREPARING: ${statusCount.PREPARING}`);
+  console.log(`Pedidos ON_THE_WAY: ${statusCount.ON_THE_WAY}`);
+  console.log(`Pedidos DELIVERED: ${statusCount.DELIVERED}`);
+  console.log(`Pedidos CANCELED: ${statusCount.CANCELED}`);
   console.log("Senha padrão dos usuários demo: 12345678");
-  console.log("Cliente demo: cliente@ghostkitchen.com");
+  console.log("Cliente demo principal: cliente@ghostkitchen.com");
+  console.log(
+    "Clientes adicionais: cliente2@ghostkitchen.com até cliente20@ghostkitchen.com",
+  );
   console.log(
     "Restaurantes demo: restaurante1@ghostkitchen.com até restaurante50@ghostkitchen.com",
   );
@@ -509,6 +810,7 @@ async function main() {
 
 main()
   .catch((error) => {
+    process.stdout.write("\n");
     console.error("Erro ao executar seed:");
     console.error(error);
     process.exit(1);

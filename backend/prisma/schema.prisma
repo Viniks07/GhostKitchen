@@ -38,14 +38,17 @@ model User {
   addresses  Address[]
   sessions   Session[]
   orders     Order[]
+  reviews    RestaurantReview[]
 }
 
 model Restaurant {
   id          Int      @id @default(autoincrement())
   userId      Int      @unique
   name        String
+  slug        String   @unique
   categoryId  Int
   description String?
+  imageUrl    String?
   isOpen      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -54,7 +57,8 @@ model Restaurant {
 
   orders   Order[]
   products Product[]
-  category Category  @relation(fields: [categoryId], references: [id])
+  category Category           @relation(fields: [categoryId], references: [id])
+  reviews  RestaurantReview[]
 
   @@index([categoryId])
 }
@@ -95,7 +99,9 @@ model Product {
   id           Int      @id @default(autoincrement())
   restaurantId Int
   name         String
+  slug         String
   description  String?
+  imageUrl     String?
   priceInCents Int
   isAvailable  Boolean  @default(false)
   createdAt    DateTime @default(now())
@@ -104,6 +110,8 @@ model Product {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   orderItems OrderItem[]
+
+  @@unique([restaurantId, slug])
 }
 
 model Order {
@@ -119,6 +127,8 @@ model Order {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
 
   orderItems OrderItem[]
+
+  review RestaurantReview?
 }
 
 model OrderItem {
@@ -132,4 +142,23 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([orderId, productId])
+  @@index([productId])
+}
+
+model RestaurantReview {
+  id           Int      @id @default(autoincrement())
+  orderId      Int      @unique
+  clientId     Int
+  restaurantId Int
+  rating       Int
+  comment      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  order      Order      @relation(fields: [orderId], references: [id])
+  client     User       @relation(fields: [clientId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@index([restaurantId])
+  @@index([clientId])
 }

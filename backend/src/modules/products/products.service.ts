@@ -1,14 +1,40 @@
 import { AppError } from "../../shared/errors/AppError.js";
 import { ProductsRepository } from "./products.repository.js";
-import type { CreateProductDTO, UpdateProductDTO } from "./products.dto.js";
+import type {
+  CreateProductDTO,
+  CreateProductData,
+  UpdateProductDTO,
+  UpdateProductData,
+} from "./products.dto.js";
+import {
+  validateImageUrlForCreate,
+  validateImageUrlForUpdate,
+} from "../../shared/utils/validateImageUrl.js";
 import {
   MAX_PRICE_IN_CENTS,
   FEATURED_PRODUCTS_LIMIT,
+  MOST_ORDERED_PRODUCTS_LIMIT,
 } from "../../shared/constants/business-rules.js";
+import { generateUniqueSlug } from "../../shared/utils/generateUniqueSlug.js";
 
 const productsRepository = new ProductsRepository();
 
 export class ProductsService {
+  private async generateUniqueProductSlug(restaurantId: number, name: string) {
+    return generateUniqueSlug({
+      value: name,
+      errorMessage: "Não foi possível gerar o slug do produto",
+      exists: async (slug) => {
+        const product = await productsRepository.findProductBySlug(
+          restaurantId,
+          slug,
+        );
+
+        return Boolean(product);
+      },
+    });
+  }
+
   async create(userId: number, data: CreateProductDTO) {
     if (typeof data.name !== "string") {
       throw new AppError("Nome com formato inválido", 400);
@@ -74,19 +100,6 @@ export class ProductsService {
     const priceInCents = data.priceInCents;
     const isAvailable = data.isAvailable;
 
-    const productData: CreateProductDTO = {
-      name,
-      priceInCents,
-    };
-
-    if (description !== undefined) {
-      productData.description = description;
-    }
-
-    if (isAvailable !== undefined) {
-      productData.isAvailable = isAvailable;
-    }
-
     const restaurant = await productsRepository.findRestaurantByUserId(userId);
 
     if (!restaurant) {
@@ -94,6 +107,26 @@ export class ProductsService {
     }
 
     const restaurantId = restaurant.id;
+    const slug = await this.generateUniqueProductSlug(restaurantId, name);
+    const imageUrl = validateImageUrlForCreate(data.imageUrl);
+
+    const productData: CreateProductData = {
+      name,
+      slug,
+      priceInCents,
+    };
+
+    if (description !== undefined) {
+      productData.description = description;
+    }
+
+    if (imageUrl !== undefined) {
+      productData.imageUrl = imageUrl;
+    }
+
+    if (isAvailable !== undefined) {
+      productData.isAvailable = isAvailable;
+    }
 
     const product = await productsRepository.createProduct(
       restaurantId,
@@ -119,7 +152,7 @@ export class ProductsService {
       throw new AppError("Produto não encontrado", 404);
     }
 
-    const updatedData: UpdateProductDTO = {};
+    const updatedData: UpdateProductData = {};
 
     if (data.name !== undefined) {
       if (typeof data.name !== "string") {
@@ -156,6 +189,14 @@ export class ProductsService {
         }
 
         updatedData.description = description || null;
+      }
+    }
+
+    if (data.imageUrl !== undefined) {
+      const imageUrl = validateImageUrlForUpdate(data.imageUrl);
+
+      if (imageUrl !== undefined) {
+        updatedData.imageUrl = imageUrl;
       }
     }
 
@@ -213,10 +254,47 @@ export class ProductsService {
   }
 
   async getFeaturedProducts() {
-    const products = await productsRepository.findFeaturedProducts(
+    const products = await productsRepository.findFeaturedProductsByRelevance(
       FEATURED_PRODUCTS_LIMIT,
     );
 
     return products;
+  }
+
+  async getMostOrderedProductsByRestaurantId(restaurantId: number) {
+    const productStats =
+      await productsRepository.findMostOrderedProductStatsByRestaurantId(
+        restaurantId,
+        MOST_ORDERED_PRODUCTS_LIMIT,
+      );
+
+    const productIds = productStats.map((stat) => stat.productId);
+
+    if (productIds.length === 0) {
+      return [];
+    }
+
+    const products = await productsRepository.findProductsByIds(productIds);
+
+    const productsById = new Map(
+      products.map((product) => [product.id, product]),
+    );
+
+    const mostOrderedProducts = [];
+
+    for (const stat of productStats) {
+      const product = productsById.get(stat.productId);
+
+      if (!product) {
+        continue;
+      }
+
+      mostOrderedProducts.push({
+        ...product,
+        totalOrdered: stat._sum.quantity ?? 0,
+      });
+    }
+
+    return mostOrderedProducts;
   }
 }

@@ -11,6 +11,7 @@ import {
 } from "../modules/orders/orders.routes.js";
 import { authRouter } from "../modules/auth/auth.routes.js";
 import { addressesRouter } from "../modules/addresses/addresses.routes.js";
+import { categoriesRouter } from "../modules/categories/categories.routes.js";
 
 export const routes = Router();
 
@@ -27,3 +28,5 @@ routes.use("/restaurants", restaurantsRouter);
 routes.use("/orders", ordersRouter);
 
 routes.use("/addresses", addressesRouter);
+
+routes.use("/categories", categoriesRouter);

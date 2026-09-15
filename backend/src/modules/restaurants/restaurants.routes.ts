@@ -37,6 +37,10 @@ restaurantsRouter.get("/", (req, res) => {
   return restaurantsController.getPublicRestaurants(req, res);
 });
 
+restaurantsRouter.get("/:id/products/most-ordered", (req, res) => {
+  return restaurantsController.getMostOrderedProductsByRestaurantId(req, res);
+});
+
 restaurantsRouter.get("/:id/products", (req, res) => {
   return restaurantsController.getPublicRestaurantProducts(req, res);
 });
