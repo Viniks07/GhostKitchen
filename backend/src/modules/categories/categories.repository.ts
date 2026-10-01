@@ -7,6 +7,7 @@ export class CategoriesRepository {
         id: true,
         name: true,
         slug: true,
+        imageUrl: true,
       },
       orderBy: {
         id: "asc",

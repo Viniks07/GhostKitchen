@@ -8,12 +8,24 @@
 
 html {
   scroll-behavior: smooth;
+
+  min-height: 100vh;
 }
 
 body {
+  position: relative;
   font-family: "Roboto", sans-serif;
   min-height: 100vh;
+
+  overflow-x: hidden;
 }
+
+#root {
+  position: relative;
+
+  min-height: 100vh;
+}
+
 
 img,
 picture,

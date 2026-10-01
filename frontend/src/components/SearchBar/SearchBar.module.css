@@ -3,9 +3,8 @@
   flex-direction: column;
   width: 100%;
   margin-bottom: 1.5rem;
+  
 }
-
-
 
 .searchBarInputContainer {
   width: 100%;
@@ -19,13 +18,14 @@
   width: 100%;
   padding: 0.8rem;
   border-radius: 8px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   border: none;
   color: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 4px 1px rgb(0 0 0 / 0.25);
+
 }
 
-.searchBarInput:focus{
-    outline: none;
+.searchBarInput:focus {
+  outline: none;
 }
 
 .searchBarInput::-webkit-search-cancel-button {
@@ -80,4 +80,8 @@
     opacity: 1;
     transform: rotate(0deg) scale(1);
   }
+}
+
+.inGradient {
+  color: white;
 }

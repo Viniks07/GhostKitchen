@@ -9,12 +9,11 @@ export function SearchBar() {
 
   return (
     <form className={styles.searchBarContainer}>
-
       <div className={styles.searchBarInputContainer}>
         <input
           className={styles.searchBarInput}
           type="search"
-          placeholder="O que vai pedir hoje?"
+          placeholder="O que vamos pedir hoje?"
           onFocus={() => setInputFocused(true)}
           onBlur={() => setInputFocused(false)}
         />

@@ -1,30 +1,31 @@
-import { HamburgerMenu } from "../HamburgerMenu/HamburgerMenu";
-
+import logoImage from "../../assets/images/logo/main-icon.svg"
+import { HamburgerMenu } from "./components/HamburgerMenu/HamburgerMenu";
+import gpsIcon from "../../assets/images/logo/gps-icon.svg"
 import styles from "./Header.module.css";
 
 type HeaderProps = {
-  name: string;
-  gender: string;
+  isMenuOpen: boolean;
+  onToggleMenu: () => void;
 };
 
-export function Header({ name, gender }: HeaderProps) {
+export function Header({ isMenuOpen, onToggleMenu }: HeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.profileImageContainer}>
         <img
           className={styles.profileImage}
-          src="https://placehold.co/56x56/png"
+          src={logoImage}
           alt="Sua foto de perfil"
         />
-        <div className={styles.textContainer}>
-          <p className={styles.profileText}>
-            {`Bem vind${gender === "M" ? "o" : "a"} de volta,`}
-          </p>
-          <strong className={styles.clientName}>{name}</strong>
+      </div>
+      <div className={styles.addressContainer}>
+        <div className={styles.gpsIconContainer}>
+          <img src={gpsIcon} alt="" />  
         </div>
+        <p className={styles.address}>Rua das Flores, 123</p>
       </div>
       <div className={styles.hamburgerMenuContainer}>
-        <HamburgerMenu />
+        <HamburgerMenu isOpen={isMenuOpen} onToggle={onToggleMenu} />
       </div>
     </header>
   );

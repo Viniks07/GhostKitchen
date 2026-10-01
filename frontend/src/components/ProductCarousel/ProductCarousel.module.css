@@ -1,0 +1,174 @@
+:root {
+  --indicator-size: 0.5rem;
+  --indicator-gap: 0.5rem;
+
+  --indicator-radius: calc(var(--indicator-size) / 2);
+
+  --indicator-color: rgba(255, 120, 0, 1);
+  --indicator-background: rgba(255, 120, 0, 1);
+  --indicator-active-background: rgba(255, 120, 0, 1);
+
+  --indicator-active-width: calc(
+    var(--indicator-size) * 3 + var(--indicator-gap) * 2
+  );
+
+  --indicator-edge-active-width: calc(
+    var(--indicator-size) * 2 + var(--indicator-gap)
+  );
+}
+
+.productCarousel {
+  margin-bottom: 1rem;
+  margin-inline: -1rem;
+}
+
+.featuredProductsList {
+  display: grid;
+
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2rem) / 2);
+
+  gap: 1rem;
+
+  overflow-x: auto;
+
+  padding: 0 0 1rem 0;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.featuredProductsList::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselIndexes {
+  display: flex;
+  
+  justify-content: center;
+  align-items: center;
+  
+  gap: var(--indicator-gap);
+  
+  
+}
+
+.carouselIndexesIndicator {
+  position: relative;
+  
+  box-sizing: border-box;
+  
+  width: var(--indicator-size);
+  height: var(--indicator-size);
+  
+  flex: 0 0 var(--indicator-size);
+  
+  background-color: var(--indicator-background);
+  
+  border-radius: var(--indicator-radius);
+  
+  opacity: 1;
+  border: 1px solid rgb(9, 37, 78);
+  transform: scale(1);
+  
+  transition:
+  opacity 0.35s ease,
+  transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+  background-color 0.35s ease;
+}
+
+.carouselIndexesIndicator:has(+ .activeIndicator) {
+  opacity: 0;
+  border: none;
+  
+  transform: scale(0);
+}
+
+.activeIndicator + .carouselIndexesIndicator {
+  opacity: 0;
+  border: none;
+  transform: scale(0);
+}
+
+.activeIndicator {
+  background-color: transparent;
+  border-color: transparent;
+  
+  z-index: 2;
+}
+
+.activeIndicator::after {
+  content: "";
+  border: 1px solid rgb(9, 37, 78);
+  
+  position: absolute;
+  
+  top: 50%;
+  left: 50%;
+  
+  box-sizing: border-box;
+  
+  width: var(--indicator-size);
+  height: var(--indicator-size);
+  
+  background-color: var(--indicator-active-background);
+  
+  border-radius: var(--indicator-radius);
+  
+  transform: translate(-50%, -50%);
+  
+  animation: growActiveIndicator 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  
+  z-index: -1;
+}
+
+@keyframes growActiveIndicator {
+  from {
+    width: var(--indicator-size);
+  }
+  
+  to {
+    width: var(--indicator-active-width);
+  }
+}
+
+.activeIndicator:first-child::after {
+  left: 0;
+
+  transform: translateY(-50%);
+
+  animation-name: growFirstIndicator;
+}
+
+@keyframes growFirstIndicator {
+  from {
+    width: var(--indicator-size);
+  }
+
+  to {
+    width: var(--indicator-edge-active-width);
+  }
+}
+
+.activeIndicator:last-child::after {
+  left: auto;
+  right: 0;
+
+  transform: translateY(-50%);
+
+  animation-name: growLastIndicator;
+}
+
+@keyframes growLastIndicator {
+  from {
+    width: var(--indicator-size);
+  }
+
+  to {
+    width: var(--indicator-edge-active-width);
+  }
+}
+
+.inGradient {
+  color: white;
+}

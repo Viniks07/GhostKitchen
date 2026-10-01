@@ -1,40 +1,65 @@
-.header{
-  height: 4rem;
+.header {
+  height: 56px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-.profileImageContainer{
-  width: 50%;
-  background-color: white;
-  border-radius: 999px;
+.profileImageContainer {
+  width: 56px;
+  height: auto;
+  padding: 1px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 1.5px 1px rgba(0,0,0,.1);
 }
 
-.profileImage{
-  padding: 4px;
-  object-fit: contain;
-  border-radius: 50%;
+.profileImage {
+  width: 100%;
+  object-fit: cover;
 }
 
-.profileText{
-  font-size: .75rem;
-  opacity: 50%;
+.addressContainer {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+  background-color: white;
 }
 
-.clientName{
+.gpsIconContainer {
+  position: relative;
+
+  width: 1.5rem;
+  height: 1.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  transform: translateX(-.125rem);
+}
+
+.address {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
+  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-.125rem);
 }
 
-.hamburgerMenuContainer{
-  width: 3rem ;
+.hamburgerMenuContainer {
+  width: 40px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;

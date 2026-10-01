@@ -20,6 +20,7 @@ type CategorySlug =
 type SeedCategory = {
   name: string;
   slug: CategorySlug;
+  imageUrl: string;
 };
 
 type SeedProduct = {
@@ -44,22 +45,27 @@ const categories: SeedCategory[] = [
   {
     name: "Lanches",
     slug: "lanches",
+    imageUrl: `https://res.cloudinary.com/hck74bhb/image/upload/v1789699147/lanche.png`
   },
   {
     name: "Pizzas",
     slug: "pizzas",
+    imageUrl: `https://res.cloudinary.com/hck74bhb/image/upload/v1789699154/pizza.png`
   },
   {
     name: "Brasileira",
     slug: "brasileira",
+    imageUrl: `https://res.cloudinary.com/hck74bhb/image/upload/v1789699146/brasileira.png`
   },
   {
     name: "Sobremesa",
     slug: "sobremesa",
+    imageUrl: `https://res.cloudinary.com/hck74bhb/image/upload/v1789699146/sobremesa.png`
   },
   {
     name: "Asiática",
     slug: "asiatica",
+    imageUrl: `https://res.cloudinary.com/hck74bhb/image/upload/v1789699144/asiatica.png`
   },
 ];
 
@@ -389,8 +395,16 @@ const productsByCategory: Record<CategorySlug, SeedProduct[]> = {
   ],
 };
 
-function createImageUrl(label: string) {
-  return `https://placehold.co/1024x1024/png?text=${encodeURIComponent(label)}`;
+function createRestaurantImageUrl(seed: number) {
+  return `https://picsum.photos/seed/restaurant-${seed}/1280/720`;
+}
+
+function createProductImageUrl(seed: number) {
+  return `https://picsum.photos/seed/product-${seed}/1024/768`;
+}
+
+function createUserImageUrl(seed: number) {
+  return `https://picsum.photos/seed/user-${seed}/512/512`;
 }
 
 function randomInt(min: number, max: number) {
@@ -598,7 +612,7 @@ async function seedRestaurants(
           name: restaurantName,
           slug: createSlug(restaurantName),
           description: `${restaurantName} - restaurante da categoria ${category.name}.`,
-          imageUrl: createImageUrl(restaurantName),
+          imageUrl: createRestaurantImageUrl(restaurantCount),
           isOpen: restaurantCount % 4 !== 0,
         },
         select: {
@@ -612,7 +626,9 @@ async function seedRestaurants(
           name: product.name,
           slug: createSlug(product.name),
           description: product.description,
-          imageUrl: createImageUrl(`${restaurantName} ${product.name}`),
+          imageUrl: createProductImageUrl(
+            productIndex + 1 + restaurantCount * 100,
+          ),
           priceInCents: product.priceInCents,
           isAvailable: productIndex % 5 !== 0,
         })),

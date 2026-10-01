@@ -1,4 +1,4 @@
-import { env } from "../config/env";
+import { env } from "../shared/config/env";
 import type { GetRestaurantsResponse } from "../types/Restaurant";
 
 export async function GetRestaurants(): Promise<GetRestaurantsResponse> {
